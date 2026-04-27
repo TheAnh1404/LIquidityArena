@@ -9,17 +9,6 @@
 
 ---
 
-## ✅ Submission Checklist
-
-- [x] **Public GitHub Repository**: [https://github.com/TheAnh1404/LIquidityArena](https://github.com/TheAnh1404/LIquidityArena)
-- [x] **Complete Documentation**: README with architecture and setup guides.
-- [x] **Meaningful Commits**: 10+ structured commits following Conventional Commits.
-- [x] **Live Demo**: [INSERT_YOUR_VERCEL_OR_NETLIFY_LINK_HERE]
-- [x] **Demo Video (1-min)**: [INSERT_YOUR_YOUTUBE_OR_LOOM_LINK_HERE]
-- [x] **Test Validation**: 3+ core logic tests passing (see below).
-
----
-
 ## 🚀 Key Features
 
 - **Real-Time Arena**: Experience second-by-second XLM price predictions powered by real-time data from Binance Public API.
