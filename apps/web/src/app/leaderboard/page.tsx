@@ -8,7 +8,7 @@ export default function LeaderboardPage() {
   return (
     <main className="min-h-screen pt-24 pb-20 px-8">
       <div className="max-w-[1200px] mx-auto">
-        <header className="mb-12 text-center">
+        <header className="mb-8 lg:mb-12 text-center">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -16,12 +16,12 @@ export default function LeaderboardPage() {
           >
             <div className="flex items-center justify-center gap-3 mb-2">
               <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
-              <span className="text-xs font-bold text-[#849495] tracking-[0.3em] uppercase">GLOBAL STANDINGS</span>
+              <span className="text-[10px] lg:text-xs font-bold text-[#849495] tracking-[0.3em] uppercase">GLOBAL STANDINGS</span>
             </div>
-            <h1 className="text-6xl font-display font-bold text-gradient-primary mb-4">
+            <h1 className="text-4xl lg:text-6xl font-display font-bold text-gradient-primary mb-4">
               Arena Masters
             </h1>
-            <p className="text-[#b9cacb] max-w-3xl mx-auto text-lg leading-relaxed">
+            <p className="text-[#b9cacb] max-w-3xl mx-auto text-sm lg:text-lg leading-relaxed">
               The elite strategists of Liquidity Arena. These traders exhibit the highest precision and profit generation across the XLM network. Compete to join the Diamond tier.
             </p>
           </motion.div>

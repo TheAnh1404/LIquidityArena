@@ -81,7 +81,7 @@ export default function LeaderboardRow({
             </span>
           )}
         </div>
-        <span className="text-xs text-[#849495]">{title}</span>
+        <span className="text-xs text-[#849495] hidden sm:block">{title}</span>
       </div>
 
       {/* Accuracy */}

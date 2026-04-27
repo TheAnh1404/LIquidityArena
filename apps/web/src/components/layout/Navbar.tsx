@@ -21,26 +21,26 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
-      <div className="max-w-[1440px] mx-auto px-8 h-16 flex items-center justify-between">
+      <div className="max-w-[1440px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between gap-2">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-2 lg:gap-3 group shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#BD00FF] flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-shadow">
-            <span className="text-white font-bold text-sm">LA</span>
+            <span className="text-white font-bold text-xs lg:text-sm">LA</span>
           </div>
-          <span className="font-display text-lg font-bold text-[#dbfcff] tracking-tight">
+          <span className="font-display text-sm lg:text-lg font-bold text-[#dbfcff] tracking-tight hidden sm:block">
             Liquidity Arena
           </span>
         </Link>
 
         {/* Navigation */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 lg:gap-1">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.label}
                 href={item.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-2 lg:px-4 py-2 rounded-lg text-[11px] lg:text-sm font-medium transition-all ${
                   isActive
                     ? 'text-[#00F0FF] bg-[#00F0FF]/8'
                     : 'text-[#849495] hover:text-[#b9cacb] hover:bg-white/[0.04]'
@@ -52,8 +52,10 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* Wallet */}
-        <WalletConnectButton />
+        {/* Wallet - Hidden label on mobile */}
+        <div className="shrink-0">
+            <WalletConnectButton />
+        </div>
       </div>
     </motion.nav>
   );

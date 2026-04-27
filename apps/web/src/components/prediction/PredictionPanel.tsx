@@ -29,14 +29,11 @@ export default function PredictionPanel() {
         </div>
       </div>
 
-      {/* Price Input */}
-      <PriceInput />
-
-      {/* Divider */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
-
-      {/* Stake Slider */}
-      <StakeSlider />
+      {/* Inputs Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <PriceInput />
+        <StakeSlider />
+      </div>
 
       {/* Divider */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />

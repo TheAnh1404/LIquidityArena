@@ -66,7 +66,7 @@ export default function NotificationSystem() {
             initial={{ opacity: 0, x: 50, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 20, scale: 0.9 }}
-            className={`pointer-events-auto p-4 rounded-xl border backdrop-blur-xl w-[350px] shadow-2xl ${
+            className={`pointer-events-auto p-4 rounded-xl border backdrop-blur-xl w-[calc(100vw-2rem)] sm:w-[350px] shadow-2xl ${
               n.type === 'success' ? 'bg-[#00f990]/10 border-[#00f990]/30' :
               n.type === 'warning' ? 'bg-[#FFD700]/10 border-[#FFD700]/30' :
               'bg-[#00F0FF]/10 border-[#00F0FF]/30'

@@ -8,7 +8,7 @@ export default function ArenaHero() {
   return (
     <motion.section
       id="arena-hero"
-      className="relative w-full h-[600px] overflow-hidden rounded-2xl border border-white/[0.06]"
+      className="relative w-full h-[400px] lg:h-[600px] overflow-hidden rounded-2xl border border-white/[0.06]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}

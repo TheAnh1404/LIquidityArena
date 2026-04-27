@@ -13,7 +13,7 @@ export default function ArenaOverlay() {
       {/* Background radial glow */}
       <div className="absolute inset-0 bg-radial-glow opacity-40" />
 
-      <div className="relative flex flex-col items-center gap-6 pointer-events-auto">
+      <div className="relative flex flex-col items-center gap-4 lg:gap-6 pointer-events-auto">
         {/* Live badge */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -30,10 +30,10 @@ export default function ArenaOverlay() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
         >
-          <span className="text-label-mono text-xs text-[#849495] tracking-[0.2em]">
+          <span className="text-label-mono text-[10px] lg:text-xs text-[#849495] tracking-[0.2em]">
             ARENA ROUND
           </span>
-          <h2 className="font-display text-5xl font-bold text-gradient-primary mt-1">
+          <h2 className="font-display text-3xl lg:text-5xl font-bold text-gradient-primary mt-1">
             #{currentRound?.id || '---'}
           </h2>
         </motion.div>
