@@ -1,79 +1,28 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ActivityItem from './ActivityItem';
 import { useArenaStore } from '@/lib/store/arenaStore';
 
-const MOCK_ACTIVITIES = [
-  {
-    type: 'whale' as const,
-    title: 'WHALE ALERT',
-    description: 'Whale entered arena with 500,000 XLM',
-    time: '2m ago',
-    amount: 'STAKE: 500,000 XLM',
-  },
-  {
-    type: 'prediction' as const,
-    title: 'PREDICTION',
-    description: '0x123...4a predicted 0.145',
-    time: '3m ago',
-    amount: 'STAKE: 1,200 XLM',
-  },
-  {
-    type: 'close' as const,
-    title: 'POSITION CLOSED',
-    description: 'VaultMaster hit prediction +12.4%',
-    time: '4m ago',
-    amount: '+2,480 XLM',
-  },
-  {
-    type: 'join' as const,
-    title: 'JOINED',
-    description: 'GC...f2 joined XLM/USDT arena',
-    time: '5m ago',
-  },
-  {
-    type: 'prediction' as const,
-    title: 'PREDICTION',
-    description: '0x99...bb predicted 0.142',
-    time: '6m ago',
-    amount: 'STAKE: 800 XLM',
-  },
-  {
-    type: 'whale' as const,
-    title: 'WHALE ALERT',
-    description: 'Large liquidity position closed at 0.144',
-    time: '8m ago',
-    amount: '1.2M XLM',
-  },
-  {
-    type: 'join' as const,
-    title: 'JOINED',
-    description: 'StellarNova entered Round #402',
-    time: '10m ago',
-  },
-  {
-    type: 'prediction' as const,
-    title: 'PREDICTION',
-    description: 'CryptoViper predicted 0.1435',
-    time: '12m ago',
-    amount: 'STAKE: 3,500 XLM',
-  },
-];
+// Using dynamic data from backend instead of mock data
 
 export default function ActivityFeed() {
   const recentActivities = useArenaStore((s) => s.recentActivities);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'whale' | 'prediction'>('all');
 
-  const activities = [
-    ...recentActivities.map((a) => ({
-      type: (a.stakeAmount > 10000 ? 'whale' : 'prediction') as 'whale' | 'prediction',
-      title: a.stakeAmount > 10000 ? 'WHALE ALERT' : 'PREDICTION',
-      description: `${a.userAddress.slice(0, 4)}...${a.userAddress.slice(-4)} predicted ${a.predictedPrice}`,
-      time: 'Just now',
-      amount: `STAKE: ${a.stakeAmount.toLocaleString()} XLM`,
-    })),
-    ...MOCK_ACTIVITIES,
-  ].slice(0, 20);
+  const allActivities = recentActivities.map((a) => ({
+    type: (a.stakeAmount > 10000 ? 'whale' : 'prediction') as 'whale' | 'prediction',
+    title: a.stakeAmount > 10000 ? 'WHALE ALERT' : 'PREDICTION',
+    description: `${a.userAddress.slice(0, 4)}...${a.userAddress.slice(-4)} predicted $${a.predictedPrice.toFixed(4)}`,
+    time: 'Just now',
+    amount: `STAKE: ${a.stakeAmount.toLocaleString()} XLM`,
+  }));
+
+  const filteredActivities = allActivities.filter((activity) => {
+    if (activeFilter === 'all') return true;
+    return activity.type === activeFilter;
+  });
 
   return (
     <motion.div
@@ -98,14 +47,15 @@ export default function ActivityFeed() {
       {/* Filter tabs */}
       <div className="flex gap-2 mb-4">
         {[
-          { label: 'Live Feed', icon: '📡', active: true },
-          { label: 'Whale Alerts', icon: '🐋', active: false },
-          { label: 'Predictions', icon: '📊', active: false },
+          { id: 'all', label: 'Live Feed', icon: '📡' },
+          { id: 'whale', label: 'Whale Alerts', icon: '🐋' },
+          { id: 'prediction', label: 'Predictions', icon: '📊' },
         ].map((tab) => (
           <button
-            key={tab.label}
+            key={tab.id}
+            onClick={() => setActiveFilter(tab.id as any)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              tab.active
+              activeFilter === tab.id
                 ? 'bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/20'
                 : 'text-[#849495] border border-white/[0.04] hover:bg-white/[0.04]'
             }`}
@@ -118,9 +68,28 @@ export default function ActivityFeed() {
 
       {/* Activity items */}
       <div className="flex flex-col gap-2 max-h-[450px] overflow-y-auto pr-1">
-        {activities.map((activity, i) => (
-          <ActivityItem key={i} {...activity} index={i} />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {filteredActivities.length > 0 ? (
+            filteredActivities.map((activity, i) => (
+              <motion.div
+                key={`${activity.type}-${i}-${activity.amount}`}
+                initial={{ opacity: 0, height: 0, scale: 0.9 }}
+                animate={{ opacity: 1, height: 'auto', scale: 1 }}
+                exit={{ opacity: 0, height: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ActivityItem {...activity} index={i} />
+              </motion.div>
+            ))
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="text-center p-6 text-[#849495] text-sm italic"
+            >
+              No {activeFilter === 'whale' ? 'whale alerts' : 'predictions'} found yet.
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </motion.div>
   );

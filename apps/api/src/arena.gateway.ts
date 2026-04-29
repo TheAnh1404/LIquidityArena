@@ -7,6 +7,7 @@ import {
 import { Server } from 'socket.io';
 import { PriceService } from './price.service';
 import { RoundService } from './round.service';
+import { LeaderboardService } from './leaderboard.service';
 import { WsEvent } from '@arena/types';
 import { CONFIG } from '@arena/config';
 
@@ -17,6 +18,7 @@ export class ArenaGateway implements OnGatewayInit, OnGatewayConnection {
   constructor(
     private readonly priceService: PriceService,
     private readonly roundService: RoundService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   afterInit() {
@@ -31,6 +33,16 @@ export class ArenaGateway implements OnGatewayInit, OnGatewayConnection {
     this.roundService.round$.subscribe((payload) => {
       this.server.emit(WsEvent.ROUND_UPDATE, payload);
     });
+
+    // Subscribe to leaderboard updates
+    this.leaderboardService.leaderboard$.subscribe((payload) => {
+      this.server.emit(WsEvent.LEADERBOARD_UPDATE, payload);
+    });
+
+    // Subscribe to new predictions
+    this.roundService.prediction$.subscribe((payload) => {
+      this.server.emit(WsEvent.NEW_PREDICTION, payload);
+    });
   }
 
   handleConnection(client: any) {
@@ -40,5 +52,7 @@ export class ArenaGateway implements OnGatewayInit, OnGatewayConnection {
       timestamp: Date.now(),
     });
     client.emit(WsEvent.ROUND_UPDATE, this.roundService.getCurrentRound());
+    client.emit(WsEvent.LEADERBOARD_UPDATE, this.leaderboardService.getLeaderboard());
+    client.emit(WsEvent.FEED_SYNC, this.roundService.getRecentPredictions());
   }
 }

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { io, Socket } from 'socket.io-client';
-import { Round, RoundStatus, WsEvent, WsPayload, Prediction } from '@arena/types';
+import { Round, RoundStatus, WsEvent, WsPayload, Prediction, LeaderboardEntry } from '@arena/types';
 import { CONFIG } from '@arena/config';
 
 export type ArenaStatus = 'leading' | 'risky' | 'losing' | 'neutral';
@@ -25,6 +25,8 @@ interface ArenaState {
   activeUsers: number;
   recentActivities: Prediction[];
   myHistory: Prediction[];
+  pastRounds: Record<string, Round>;
+  leaderboard: LeaderboardEntry[];
 
   /* Strategy */
   status: ArenaStatus;
@@ -68,6 +70,8 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
   activeUsers: 0,
   recentActivities: [],
   myHistory: [],
+  pastRounds: {},
+  leaderboard: [],
 
   /* Strategy */
   status: 'neutral',
@@ -136,12 +140,22 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
       set({ currentXlmPrice: payload.price });
     });
 
-    socket.on(WsEvent.ROUND_UPDATE, (payload: WsPayload[WsEvent.ROUND_UPDATE]) => {
+      socket.on(WsEvent.ROUND_UPDATE, (payload: WsPayload[WsEvent.ROUND_UPDATE]) => {
       set({ 
         currentRound: payload,
         totalPool: payload.totalPool,
         activeUsers: payload.activeUsers,
       });
+
+      // Store in pastRounds if resolved
+      if (payload.status === RoundStatus.RESOLVED) {
+        set((state) => ({
+          pastRounds: {
+            ...state.pastRounds,
+            [payload.id]: payload,
+          }
+        }));
+      }
 
       // If round resolved and we were in the arena, check if we can claim
       if (payload.status === RoundStatus.RESOLVED && get().status === 'leading') {
@@ -158,8 +172,16 @@ export const useArenaStore = create<ArenaState>((set, get) => ({
 
     socket.on(WsEvent.NEW_PREDICTION, (payload: WsPayload[WsEvent.NEW_PREDICTION]) => {
       set((state) => ({
-        recentActivities: [payload, ...state.recentActivities.slice(0, 19)]
+        recentActivities: [payload, ...state.recentActivities].slice(0, 20)
       }));
+    });
+
+    socket.on(WsEvent.FEED_SYNC, (payload: WsPayload[WsEvent.FEED_SYNC]) => {
+      set({ recentActivities: payload });
+    });
+
+    socket.on(WsEvent.LEADERBOARD_UPDATE, (payload: WsPayload[WsEvent.LEADERBOARD_UPDATE]) => {
+      set({ leaderboard: payload });
     });
 
     set({ socket });

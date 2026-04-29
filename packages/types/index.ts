@@ -11,6 +11,7 @@ export interface Round {
   status: RoundStatus;
   totalPool: number;
   activeUsers: number;
+  startPrice: number;
   finalPrice?: number;
 }
 
@@ -35,6 +36,7 @@ export enum WsEvent {
   LEADERBOARD_UPDATE = 'leaderboard_update',
   POOL_UPDATE = 'pool_update',
   PRICE_UPDATE = 'price_update',
+  FEED_SYNC = 'feed_sync',
 }
 
 export interface WsPayload {
@@ -43,4 +45,5 @@ export interface WsPayload {
   [WsEvent.LEADERBOARD_UPDATE]: LeaderboardEntry[];
   [WsEvent.POOL_UPDATE]: { totalPool: number; activeUsers: number };
   [WsEvent.PRICE_UPDATE]: { price: number; timestamp: number };
+  [WsEvent.FEED_SYNC]: Prediction[];
 }

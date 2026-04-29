@@ -12,6 +12,9 @@ export default function MyStrategyPanel() {
   const multiplier = useArenaStore((s) => s.multiplier);
   const canClaim = useArenaStore((s) => s.canClaim);
   const claimReward = useArenaStore((s) => s.claimReward);
+  const myHistory = useArenaStore((s) => s.myHistory);
+  const leaderboard = useArenaStore((s) => s.leaderboard);
+  const walletAddress = useArenaStore((s) => s.wallet.address);
   const sc = getStatusColor(status);
   
   const [mounted, setMounted] = useState(false);
@@ -22,11 +25,20 @@ export default function MyStrategyPanel() {
 
   if (!mounted) return null;
 
-  const execs = [
-    { action: 'Partial Close', time: '2 mins ago', detail: '+240 USDC' },
-    { action: 'Stop-Loss Adjusted', time: '45 mins ago', detail: 'To 0.115' },
-    { action: 'Round Joined', time: '2 hours ago', detail: 'Arena #402' },
-  ];
+  // Dynamic calculations
+  const myLeaderboardEntry = leaderboard.find(e => e.address === walletAddress);
+  const totalProfit = myLeaderboardEntry ? myLeaderboardEntry.profit : 0;
+  
+  const totalUsers = leaderboard.length || 1;
+  const myRank = myLeaderboardEntry ? myLeaderboardEntry.rank : totalUsers;
+  // If rank 1 of 10 -> outperforming 90% (1 - 1/10)
+  const alphaPercentage = Math.round((1 - (myRank / totalUsers)) * 100) || 5;
+
+  const execs = myHistory.slice(0, 3).map(h => ({
+    action: `Predicted $${h.predictedPrice.toFixed(4)}`,
+    time: 'Recent',
+    detail: `${h.stakeAmount} XLM`
+  }));
 
   return (
     <motion.div id="strategy-panel" className="glass-panel p-6"
@@ -40,7 +52,9 @@ export default function MyStrategyPanel() {
       <div className="glass-panel-high p-4 mb-4">
         <div className="flex items-center justify-between mb-3">
           <span className="font-display text-lg font-semibold text-[#dbfcff]">XLM Long Strategy</span>
-          <span className="font-display text-lg font-bold text-[#00f990]">+1,240.45 USDC</span>
+          <span className={`font-display text-lg font-bold ${totalProfit >= 0 ? 'text-[#00f990]' : 'text-red-500'}`}>
+            {totalProfit >= 0 ? '+' : ''}{totalProfit.toLocaleString()} XLM
+          </span>
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>
@@ -60,10 +74,10 @@ export default function MyStrategyPanel() {
 
       <div className="border-glow-emerald rounded-xl p-4 mb-4">
         <span className="text-xs font-bold text-[#00f990] uppercase tracking-wider">✦ Alpha Achieved</span>
-        <p className="text-sm text-[#b9cacb] mt-1">You are outperforming 85% of traders this round</p>
+        <p className="text-sm text-[#b9cacb] mt-1">You are outperforming {alphaPercentage}% of traders this round</p>
         <div className="mt-2 w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
           <motion.div className="h-full rounded-full bg-gradient-to-r from-[#00f990] to-[#00F0FF]"
-            initial={{ width: 0 }} animate={{ width: '85%' }} transition={{ duration: 1.2, delay: 0.6 }} />
+            initial={{ width: 0 }} animate={{ width: `${alphaPercentage}%` }} transition={{ duration: 1.2, delay: 0.6 }} />
         </div>
       </div>
 
@@ -88,7 +102,7 @@ export default function MyStrategyPanel() {
       <div>
         <span className="text-label-mono text-xs text-[#849495] tracking-[0.15em] block mb-3">RECENT EXECUTIONS</span>
         <div className="flex flex-col gap-2">
-          {execs.map((e, i) => (
+          {execs.length > 0 ? execs.map((e, i) => (
             <motion.div key={i} className="flex items-center justify-between p-3 rounded-lg bg-white/[0.02] border border-white/[0.04]"
               initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 + i * 0.1 }}>
               <div>
@@ -97,7 +111,11 @@ export default function MyStrategyPanel() {
               </div>
               <span className={`text-sm font-display font-semibold ${e.detail.startsWith('+') ? 'text-[#00f990]' : 'text-[#b9cacb]'}`}>{e.detail}</span>
             </motion.div>
-          ))}
+          )) : (
+            <div className="text-center p-4 text-[#849495] text-xs italic">
+              No recent executions
+            </div>
+          )}
         </div>
       </div>
 

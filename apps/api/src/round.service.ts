@@ -1,12 +1,15 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { Round, RoundStatus } from '@arena/types';
+import { Round, RoundStatus, Prediction } from '@arena/types';
 import { CONFIG } from '@arena/config';
 import { Subject } from 'rxjs';
+import { PriceService } from './price.service';
 
 @Injectable()
 export class RoundService implements OnModuleInit {
   private currentRound: Round;
   public round$ = new Subject<Round>();
+  public prediction$ = new Subject<Prediction>();
+  private recentPredictions: Prediction[] = [];
 
   constructor(private priceService: PriceService) {}
 
@@ -26,6 +29,23 @@ export class RoundService implements OnModuleInit {
     this.currentRound.totalPool += amount;
     this.currentRound.activeUsers += 1;
     this.round$.next(this.currentRound);
+
+    const newPrediction: Prediction = {
+      userAddress: '0x' + Math.random().toString(16).substring(2, 10).toUpperCase(),
+      predictedPrice: this.priceService.getCurrentPrice() * (1 + (Math.random() - 0.5) * 0.01),
+      stakeAmount: amount,
+      roundId: this.currentRound.id,
+    };
+
+    this.recentPredictions.unshift(newPrediction);
+    if (this.recentPredictions.length > 20) {
+      this.recentPredictions.pop();
+    }
+    this.prediction$.next(newPrediction);
+  }
+
+  public getRecentPredictions(): Prediction[] {
+    return this.recentPredictions;
   }
 
   startNewRound() {
@@ -37,7 +57,7 @@ export class RoundService implements OnModuleInit {
       status: RoundStatus.OPEN,
       totalPool: 12450, // Initial seed
       activeUsers: 42,
-      startPrice: this.priceService.getLatestPrice(),
+      startPrice: this.priceService.getCurrentPrice(),
     };
     this.round$.next(this.currentRound);
 
@@ -59,7 +79,7 @@ export class RoundService implements OnModuleInit {
 
   resolveRound() {
     this.currentRound.status = RoundStatus.RESOLVED;
-    this.currentRound.finalPrice = this.priceService.getLatestPrice();
+    this.currentRound.finalPrice = this.priceService.getCurrentPrice();
     this.round$.next(this.currentRound);
 
     // Start next round after 5 seconds
